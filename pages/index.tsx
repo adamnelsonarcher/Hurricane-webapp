@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import FilterPanel from '../components/FilterPanel'
 import CitySelector from '../components/CitySelector'
 import { Hurricane } from '../types/hurricane'
+import hurricaneData from '../public/data/hurricanes.json'
 
 // Dynamic import for Map component (no SSR)
 const Map = dynamic(() => import('../components/Map'), { ssr: false })
@@ -49,37 +50,15 @@ function getCategoryColor(category: number): string {
 
 export default function HomeTemplate() {
   // State management
-  const [hurricaneData, setHurricaneData] = useState<Hurricane[]>([])
   const [selectedHurricanes, setSelectedHurricanes] = useState<Hurricane[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [yearRange, setYearRange] = useState<[number, number]>([1999, 2024])
-  const [intensityRange, setIntensityRange] = useState<[number, number]>([0, 200])
   const [selectedCity, setSelectedCity] = useState<string | null>(null)
-  const [cityHurricanes, setCityHurricanes] = useState<Hurricane[]>([])
+  const [cityHurricanes, setCityHurricanes] = useState<Hurricane[]>(hurricaneData)
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
   const [isResultsExpanded, setIsResultsExpanded] = useState(false)
   const [selectedHurricane, setSelectedHurricane] = useState<Hurricane | null>(null)
+  const [yearRange, setYearRange] = useState<[number, number]>([1999, 2024])
+  const [intensityRange, setIntensityRange] = useState<[number, number]>([0, 200])
   const [categoryRange, setCategoryRange] = useState<[number, number]>([0, 5])
-
-  // Fetch hurricane data and set it as the initial display
-  useEffect(() => {
-    // Use the current origin for API requests
-    const apiUrl = `${window.location.origin}/api/hurricanes`;
-    
-    fetch(apiUrl)
-      .then(res => res.json())
-      .then(data => {
-        setHurricaneData(data)
-        setCityHurricanes(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error('Error fetching hurricanes:', err);
-        setError(err.message)
-        setLoading(false)
-      })
-  }, [])
 
   // Filter handling functions
   const handleCitySelect = (cityName: string, hurricanes: Hurricane[]) => {
@@ -150,36 +129,6 @@ export default function HomeTemplate() {
     setSelectedCity(null);
     setCityHurricanes(hurricaneData);
   };
-
-  if (loading) {
-    return (
-      <div style={{ 
-        height: '100vh', 
-        width: '100vw', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        backgroundColor: '#f3f4f6'
-      }}>
-        Loading...
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div style={{ 
-        height: '100vh', 
-        width: '100vw', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        backgroundColor: '#f3f4f6'
-      }}>
-        Error: {error}
-      </div>
-    )
-  }
 
   return (
     <div style={{ 
