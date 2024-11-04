@@ -73,16 +73,16 @@ export default function FilterPanel({
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="btn-group">
         <button
           onClick={onApply}
-          className="flex-1 bg-blue-500 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-600 transition-colors"
+          className="btn btn-primary"
         >
           Apply Filters
         </button>
         <button
           onClick={onReset}
-          className="flex-1 border border-gray-300 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50 transition-colors"
+          className="btn btn-secondary"
         >
           Reset
         </button>

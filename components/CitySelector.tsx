@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Hurricane } from '../types/hurricane'
 
 interface CitySelectorProps {
@@ -8,14 +8,31 @@ interface CitySelectorProps {
   }>
   hurricaneData: Hurricane[]
   onCitySelect: (cityName: string, hurricanes: Hurricane[]) => void
+  selectedCity?: string | null
 }
 
-export default function CitySelector({ cities, hurricaneData, onCitySelect }: CitySelectorProps) {
+export default function CitySelector({ 
+  cities, 
+  hurricaneData, 
+  onCitySelect,
+  selectedCity: externalSelectedCity = null
+}: CitySelectorProps) {
   const [selectedCity, setSelectedCity] = useState('')
+
+  useEffect(() => {
+    if (externalSelectedCity === null) {
+      setSelectedCity('')
+    }
+  }, [externalSelectedCity])
 
   const handleCityChange = (cityName: string) => {
     setSelectedCity(cityName)
     
+    if (!cityName) {
+      onCitySelect('', hurricaneData)
+      return
+    }
+
     const cityCoords = cities.find(c => c.name === cityName)?.coordinates
     if (!cityCoords) return
 
@@ -33,16 +50,13 @@ export default function CitySelector({ cities, hurricaneData, onCitySelect }: Ci
   }
 
   return (
-    <div className="mb-6">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Select a City
-      </label>
+    <div className="filter-section">
       <select 
         value={selectedCity}
         onChange={(e) => handleCityChange(e.target.value)}
-        className="w-full p-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        className="select"
       >
-        <option value="">Choose a city...</option>
+        <option value="">All Cities</option>
         {cities.map(city => (
           <option key={city.name} value={city.name}>
             {city.name}
