@@ -42,7 +42,7 @@ export default function CitySelector({
           [point.lat, point.lon],
           cityCoords
         )
-        return distance <= 100
+        return distance <= 250
       })
     })
 

@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Hurricane } from '../types/hurricane'
-import { getDistance } from '../utils/distance'
 
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 if (!mapboxToken) {
@@ -160,7 +159,7 @@ export default function Map({ hurricaneData }: MapProps) {
           wind: point.wind,
           pressure: point.pressure,
           category: getHurricaneCategory(point.wind),
-          timestamp: point.timestamp
+          timestamp: point.time
         },
         geometry: {
           type: 'Point' as const,
