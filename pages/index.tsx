@@ -79,12 +79,46 @@ export default function HomeTemplate() {
 
   // Filter handling functions
   const handleCitySelect = (cityName: string, hurricanes: Hurricane[]) => {
-    setSelectedCity(cityName)
-    setCityHurricanes(hurricanes)
-  }
+    setSelectedCity(cityName);
+    
+    if (!cityName) {
+      // If no city selected, apply filters to all hurricanes
+      const filteredAll = hurricaneData.filter(hurricane => {
+        const maxWind = Math.max(...hurricane.path.map(p => p.wind));
+        const category = getHurricaneCategory(maxWind);
+        
+        return (
+          hurricane.year >= yearRange[0] && 
+          hurricane.year <= yearRange[1] &&
+          hurricane.path.some(point => point.wind >= intensityRange[0] && point.wind <= intensityRange[1]) &&
+          category >= categoryRange[0] && 
+          category <= categoryRange[1]
+        );
+      });
+      setCityHurricanes(filteredAll);
+    } else {
+      // Apply current filters to the city-specific hurricanes
+      const filteredCity = hurricanes.filter(hurricane => {
+        const maxWind = Math.max(...hurricane.path.map(p => p.wind));
+        const category = getHurricaneCategory(maxWind);
+        
+        return (
+          hurricane.year >= yearRange[0] && 
+          hurricane.year <= yearRange[1] &&
+          hurricane.path.some(point => point.wind >= intensityRange[0] && point.wind <= intensityRange[1]) &&
+          category >= categoryRange[0] && 
+          category <= categoryRange[1]
+        );
+      });
+      setCityHurricanes(filteredCity);
+    }
+  };
 
   const applyFilters = () => {
-    const filteredHurricanes = hurricaneData.filter(hurricane => {
+    // Start with either city-filtered hurricanes or all hurricanes
+    const currentSet = selectedCity ? cityHurricanes : hurricaneData;
+    
+    const filteredHurricanes = currentSet.filter(hurricane => {
       // Year filter
       if (hurricane.year < yearRange[0] || hurricane.year > yearRange[1]) return false;
 
