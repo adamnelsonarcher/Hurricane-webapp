@@ -17,6 +17,7 @@ interface MapProps {
 
 interface HurricaneProperties {
   id: string;
+  displayName: string;
   name: string;
   year: number;
   maxWind: number;
@@ -60,9 +61,10 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
 
         const popupContent = `
           <div class="p-3">
-            <h3 class="font-bold">${props.name} (${props.year})</h3>
-            <div class="text-sm">
-              <div>Max Wind: ${props.maxWind} mph</div>
+            <h3 class="font-bold">${props.displayName}</h3>
+            <div class="text-sm"></div>
+              <div>Year: ${props.year}</div>
+              <div>Max Wind: ${props.maxWind} knots</div>
               <div>Category: ${props.category}</div>
             </div>
           </div>
@@ -134,7 +136,7 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
         type: 'Feature' as const,
         properties: {
           id: hurricane.id,
-          name: hurricane.name,
+          displayName: `${hurricane.id} (${hurricane.name})`,
           year: hurricane.year,
           maxWind: maxWind,
           category: category

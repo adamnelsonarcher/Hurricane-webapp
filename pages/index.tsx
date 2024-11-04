@@ -62,13 +62,26 @@ export default function HomeTemplate() {
   const [yearRange, setYearRange] = useState<[number, number]>([1999, 2024])
   const [intensityRange, setIntensityRange] = useState<[number, number]>([0, 200])
   const [categoryRange, setCategoryRange] = useState<[number, number]>([1, 5])
+  const [pressureRange, setPressureRange] = useState<[number, number]>([900, 1020])
+  const [aceRange, setAceRange] = useState<[number, number]>([0, 100])
+
+  // Add this near the top of your component, after state declarations
+  const getInitialFiltered = (data: Hurricane[]) => {
+    return data.filter(hurricane => {
+      const maxWind = Math.max(...hurricane.path.map(p => p.wind));
+      return getHurricaneCategory(maxWind) >= 1;  // Only include Cat 1 and higher
+    });
+  };
+
+  // Use it when initializing the data
+  const initialFiltered = getInitialFiltered(typedHurricaneData);
 
   // Apply initial filters on component mount
   useEffect(() => {
     const initialFiltered = typedHurricaneData.filter(hurricane => {
       const maxWind = Math.max(...hurricane.path.map(p => p.wind));
       const category = getHurricaneCategory(maxWind);
-      return category >= 1 && category <= 5;  // Initial filter to exclude TDs
+      return category >= 1 && category <= 5; 
     });
     setCityHurricanes(initialFiltered);
   }, []);
@@ -129,7 +142,13 @@ export default function HomeTemplate() {
       const category = getHurricaneCategory(maxWind);
       if (category < categoryRange[0] || category > categoryRange[1]) return false;
 
-      return true;
+      const meetsMinPressure = hurricane.min_pressure >= pressureRange[0] && 
+                              hurricane.min_pressure <= pressureRange[1]
+      
+      const meetsAce = hurricane.ace >= aceRange[0] && 
+                       hurricane.ace <= aceRange[1]
+
+      return meetsMinPressure && meetsAce;
     });
 
     setCityHurricanes(filteredHurricanes);
@@ -139,8 +158,10 @@ export default function HomeTemplate() {
     setYearRange([1999, 2024]);
     setIntensityRange([0, 200]);
     setCategoryRange([1, 5]);
+    setPressureRange([900, 1020]);
+    setAceRange([0, 100]);
     setSelectedCity(null);
-    setCityHurricanes(typedHurricaneData);
+    setCityHurricanes(getInitialFiltered(typedHurricaneData));
   };
 
   return (
@@ -221,9 +242,13 @@ export default function HomeTemplate() {
                       yearRange={yearRange}
                       intensityRange={intensityRange}
                       categoryRange={categoryRange}
+                      pressureRange={pressureRange}
+                      aceRange={aceRange}
                       onYearChange={setYearRange}
                       onIntensityChange={setIntensityRange}
                       onCategoryChange={setCategoryRange}
+                      onPressureChange={setPressureRange}
+                      onAceChange={setAceRange}
                       onApply={applyFilters}
                       onReset={resetFilters}
                     />
@@ -349,12 +374,19 @@ export default function HomeTemplate() {
                           justifyContent: 'space-between',
                           marginBottom: '8px'
                         }}>
-                          <h3 style={{ fontWeight: '500' }}>{hurricane.name}</h3>
-                          <span style={{ color: '#6b7280', fontSize: '14px' }}>{hurricane.year}</span>
+                          <h3 style={{ fontWeight: '500' }}>
+                            {`${hurricane.id} (${hurricane.name})`}
+                          </h3>
+                          <span style={{ color: '#6b7280', fontSize: '14px' }}>
+                            {hurricane.year}
+                          </span>
                         </div>
                         <div style={{ fontSize: '14px', color: '#4b5563' }}>
-                          <div>Max Wind: {Math.max(...hurricane.path.map(p => p.wind))} mph</div>
-                          <div>Category: {getHurricaneCategory(Math.max(...hurricane.path.map(p => p.wind)))}</div>
+                        <div>{new Date(hurricane.start_time).toLocaleDateString()} - {new Date(hurricane.end_time).toLocaleDateString()}</div>
+                          <div>Max Wind: {hurricane.max_wind} knots</div>
+                          <div>Min Pressure: {hurricane.min_pressure} hPa</div>
+                          <div>Category: {getHurricaneCategory(hurricane.max_wind)}</div>
+                          <div>ACE: {hurricane.ace.toFixed(2)}</div>
                         </div>
                       </div>
                     </div>
