@@ -2,67 +2,133 @@ import { useState, useEffect } from 'react'
 import { Hurricane } from '../types/hurricane'
 
 interface CitySelectorProps {
-  cities: Array<{
-    name: string
-    coordinates: [number, number]
-  }>
   hurricaneData: Hurricane[]
-  onCitySelect: (cityName: string, hurricanes: Hurricane[]) => void
+  onCitySelect: (cityName: string, coordinates: [number, number], hurricanes: Hurricane[]) => void
   selectedCity?: string | null
 }
 
+interface GeocodingResult {
+  place_name: string
+  center: [number, number]
+}
+
 export default function CitySelector({ 
-  cities, 
   hurricaneData, 
   onCitySelect,
   selectedCity: externalSelectedCity = null
 }: CitySelectorProps) {
+  const [searchTerm, setSearchTerm] = useState('')
   const [selectedCity, setSelectedCity] = useState('')
+  const [searchResults, setSearchResults] = useState<GeocodingResult[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (externalSelectedCity === null) {
       setSelectedCity('')
+      setSearchTerm('')
     }
   }, [externalSelectedCity])
 
-  const handleCityChange = (cityName: string) => {
-    setSelectedCity(cityName)
-    
-    if (!cityName) {
-      onCitySelect('', hurricaneData)
+  const searchCities = async (query: string) => {
+    if (!query) {
+      setSearchResults([])
       return
     }
 
-    const cityCoords = cities.find(c => c.name === cityName)?.coordinates
-    if (!cityCoords) return
+    setIsLoading(true)
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` + 
+        `access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}&` +
+        'types=place&limit=5'
+      )
+      const data = await response.json()
+      setSearchResults(data.features.map((f: any) => ({
+        place_name: f.place_name,
+        center: [f.center[1], f.center[0]] // Convert to [lat, lon]
+      })))
+    } catch (error) {
+      console.error('Error searching cities:', error)
+      setSearchResults([])
+    }
+    setIsLoading(false)
+  }
 
+  const handleCitySelect = (city: GeocodingResult | null) => {
+    if (!city) {
+      setSelectedCity('')
+      setSearchTerm('')
+      setSearchResults([])
+      onCitySelect('', [0, 0], hurricaneData)
+      return
+    }
+
+    setSelectedCity(city.place_name)
+    setSearchTerm(city.place_name)
+    setSearchResults([])
+    
     const cityHurricanes = hurricaneData.filter(hurricane => {
       return hurricane.path.some(point => {
         const distance = getDistance(
           [point.lat, point.lon],
-          cityCoords
+          city.center
         )
         return distance <= 200
       })
     })
 
-    onCitySelect(cityName, cityHurricanes)
+    onCitySelect(city.place_name, city.center, cityHurricanes)
   }
 
+  // Debounce search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchCities(searchTerm)
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchTerm])
+
   return (
-    <div className="filter-section">
-      <select 
-        value={selectedCity}
-        onChange={(e) => handleCityChange(e.target.value)}
-        className="select"
-      >
-        <option value="">All Cities</option>
-        {cities.map(city => (
-          <option key={city.name} value={city.name}>
-            {city.name}
-          </option>
-        ))}
-      </select>
+    <div className="filter-section relative">
+      <div className="relative">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search for a city..."
+          className="search-input"
+        />
+        
+        {isLoading && (
+          <div className="search-loading">
+            <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+          </div>
+        )}
+      </div>
+
+      {searchTerm && !isLoading && searchResults.length > 0 && !selectedCity && (
+        <div className="search-results max-w-md">
+          {searchResults.map((city) => (
+            <div
+              key={city.place_name}
+              onClick={() => handleCitySelect(city)}
+              className="search-result-item"
+            >
+              {city.place_name}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {selectedCity && (
+        <button
+          onClick={() => handleCitySelect(null)}
+          className="mt-2 text-sm text-blue-500 hover:text-blue-700"
+        >
+          Clear selection
+        </button>
+      )}
     </div>
   )
 }

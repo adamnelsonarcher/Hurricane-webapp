@@ -8,35 +8,6 @@ import hurricaneData from '../public/data/hurricanes.json'
 // Dynamic import for Map component (no SSR)
 const Map = dynamic(() => import('../components/Map'), { ssr: false })
 
-// City coordinates from your existing setup
-const cities: Array<{ name: string; coordinates: [number, number] }> = [
-    { name: 'New Orleans', coordinates: [29.9511, -90.0715] as [number, number] },
-    { name: 'Houston', coordinates: [29.7604, -95.3698] as [number, number] },
-    { name: 'Tampa', coordinates: [27.9506, -82.4572] as [number, number] },
-    { name: 'Miami', coordinates: [25.7617, -80.1918] as [number, number] },
-    { name: 'Corpus Christi', coordinates: [27.8006, -97.3964] as [number, number] },
-    { name: 'Pensacola', coordinates: [30.4213, -87.2169] as [number, number] },
-    { name: 'Mobile', coordinates: [30.6954, -88.0399] as [number, number] },
-    { name: 'Galveston', coordinates: [29.3013, -94.7977] as [number, number] },
-    { name: 'Biloxi', coordinates: [30.3960, -88.8853] as [number, number] },
-    { name: 'Key West', coordinates: [24.5551, -81.7800] as [number, number] },
-    { name: 'Veracruz', coordinates: [19.1684, -96.1332] as [number, number] },
-    { name: 'Tampico', coordinates: [22.2475, -97.8572] as [number, number] },
-    { name: 'Campeche', coordinates: [19.834969, -90.525902] as [number, number] },
-    { name: 'Cancún', coordinates: [21.157883, -86.852288] as [number, number] },
-    { name: 'Mérida', coordinates: [20.975278, -89.595223] as [number, number] },
-    { name: 'Ciudad del Carmen', coordinates: [18.6583, -91.8035] as [number, number] },
-    { name: 'Progreso', coordinates: [21.2839, -89.6631] as [number, number] },
-    { name: 'Coatzacoalcos', coordinates: [18.1500, -94.4344] as [number, number] },
-    { name: 'Tuxpan', coordinates: [20.9550, -97.3980] as [number, number] },
-    { name: 'Havana', coordinates: [23.1365, -82.3707] as [number, number] },
-    { name: 'Varadero', coordinates: [23.1847, -81.1864] as [number, number] },
-    { name: 'Cienfuegos', coordinates: [22.1501, -80.4479] as [number, number] },
-    { name: 'Belize City', coordinates: [17.5066, -88.1973] as [number, number] },
-    { name: 'George Town', coordinates: [19.2951, -81.3809] as [number, number] },
-    { name: 'Nassau', coordinates: [25.0548, -77.3590] as [number, number] }
-  ]
-
 function getCategoryColor(category: number): string {
   switch(category) {
     case 5: return '#7e22ce'; // Purple
@@ -51,10 +22,16 @@ function getCategoryColor(category: number): string {
 // Add this type assertion near the top of the file
 const typedHurricaneData = hurricaneData as Hurricane[]
 
+// Instead, we'll create a type for city data from the geocoding API
+interface CityData {
+  name: string;
+  coordinates: [number, number];
+}
+
 export default function HomeTemplate() {
   // State management
   const [selectedHurricanes, setSelectedHurricanes] = useState<Hurricane[]>([])
-  const [selectedCity, setSelectedCity] = useState<string | null>(null)
+  const [selectedCity, setSelectedCity] = useState<CityData | null>(null)
   const [cityHurricanes, setCityHurricanes] = useState<Hurricane[]>(typedHurricaneData)
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
   const [isResultsExpanded, setIsResultsExpanded] = useState(false)
@@ -87,11 +64,10 @@ export default function HomeTemplate() {
   }, []);
 
   // Filter handling functions
-  const handleCitySelect = (cityName: string, hurricanes: Hurricane[]) => {
-    setSelectedCity(cityName);
-    
+  const handleCitySelect = (cityName: string, coordinates: [number, number], hurricanes: Hurricane[]) => {
     if (!cityName) {
-      // If no city selected, apply filters to all hurricanes
+      setSelectedCity(null);
+      // Apply filters to all hurricanes
       const filteredAll = typedHurricaneData.filter(hurricane => {
         const maxWind = Math.max(...hurricane.path.map(p => p.wind));
         const category = getHurricaneCategory(maxWind);
@@ -106,7 +82,13 @@ export default function HomeTemplate() {
       });
       setCityHurricanes(filteredAll);
     } else {
-      // Apply current filters to the city-specific hurricanes
+      // Set the selected city with its coordinates
+      setSelectedCity({
+        name: cityName,
+        coordinates: coordinates
+      });
+
+      // Apply filters to city-specific hurricanes
       const filteredCity = hurricanes.filter(hurricane => {
         const maxWind = Math.max(...hurricane.path.map(p => p.wind));
         const category = getHurricaneCategory(maxWind);
@@ -263,10 +245,9 @@ export default function HomeTemplate() {
                   }}>
                     <h2 style={{ marginBottom: '16px', fontWeight: '600' }}>Select City</h2>
                     <CitySelector 
-                      cities={cities}
                       hurricaneData={typedHurricaneData}
                       onCitySelect={handleCitySelect}
-                      selectedCity={selectedCity}
+                      selectedCity={selectedCity?.name || null}
                     />
                   </div>
                 </div>
@@ -298,7 +279,7 @@ export default function HomeTemplate() {
                 gap: '12px'
               }}>
                 <h2 style={{ fontWeight: '600' }}>
-                  {selectedCity ? `Hurricanes Near ${selectedCity}` : 'All Hurricanes'}
+                  {selectedCity ? `Hurricanes Near ${selectedCity.name}` : 'All Hurricanes'}
                 </h2>
                 <span style={{ 
                   backgroundColor: '#dbeafe',
@@ -414,8 +395,8 @@ export default function HomeTemplate() {
         }}>
           <Map 
             hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : typedHurricaneData)}
-            selectedCity={selectedCity}
-            cities={cities}
+            selectedCity={selectedCity?.name || null}
+            cities={selectedCity ? [{ name: selectedCity.name, coordinates: selectedCity.coordinates }] : []}
           />
         </div>
 

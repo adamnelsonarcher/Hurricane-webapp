@@ -11,7 +11,7 @@ mapboxgl.accessToken = mapboxToken
 
 interface MapProps {
   hurricaneData: Hurricane[]
-  selectedCity?: string | null
+  selectedCity: string | null
   cities: Array<{ name: string; coordinates: [number, number] }>
 }
 
