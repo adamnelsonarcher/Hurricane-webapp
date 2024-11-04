@@ -5,6 +5,7 @@ interface CitySelectorProps {
   hurricaneData: Hurricane[]
   onCitySelect: (cityName: string, coordinates: [number, number], hurricanes: Hurricane[]) => void
   selectedCity?: string | null
+  commonCities: Array<{ name: string; coordinates: [number, number] }>
 }
 
 interface GeocodingResult {
@@ -15,7 +16,8 @@ interface GeocodingResult {
 export default function CitySelector({ 
   hurricaneData, 
   onCitySelect,
-  selectedCity: externalSelectedCity = null
+  selectedCity: externalSelectedCity = null,
+  commonCities
 }: CitySelectorProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCity, setSelectedCity] = useState('')
@@ -89,9 +91,32 @@ export default function CitySelector({
     return () => clearTimeout(timeoutId)
   }, [searchTerm])
 
+  const handleCommonCitySelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const cityName = event.target.value;
+    if (!cityName) {
+      handleCitySelect(null);
+      return;
+    }
+
+    const selectedCity = commonCities.find(city => city.name === cityName);
+    if (selectedCity) {
+      const cityHurricanes = hurricaneData.filter(hurricane => {
+        return hurricane.path.some(point => {
+          const distance = getDistance(
+            [point.lat, point.lon],
+            selectedCity.coordinates
+          )
+          return distance <= 200
+        })
+      });
+
+      onCitySelect(selectedCity.name, selectedCity.coordinates, cityHurricanes);
+    }
+  };
+
   return (
     <div className="filter-section relative">
-      <div className="relative">
+      <div className="relative mb-4">
         <input
           type="text"
           value={searchTerm}
@@ -105,30 +130,46 @@ export default function CitySelector({
             <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
           </div>
         )}
+
+        {searchTerm && !isLoading && searchResults.length > 0 && !selectedCity && (
+          <div className="search-results max-w-md">
+            {searchResults.map((city) => (
+              <div
+                key={city.place_name}
+                onClick={() => handleCitySelect(city)}
+                className="search-result-item"
+              >
+                {city.place_name}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {searchTerm && !isLoading && searchResults.length > 0 && !selectedCity && (
-        <div className="search-results max-w-md">
-          {searchResults.map((city) => (
-            <div
-              key={city.place_name}
-              onClick={() => handleCitySelect(city)}
-              className="search-result-item"
-            >
-              {city.place_name}
-            </div>
-          ))}
+      <div className="mt-4">
+        <div className="text-sm text-gray-600 mb-2">
+          Or select one of these 25 gulf cities:
         </div>
-      )}
-
-      {selectedCity && (
-        <button
-          onClick={() => handleCitySelect(null)}
-          className="mt-2 text-sm text-blue-500 hover:text-blue-700"
+        <select
+          value={externalSelectedCity || ''}
+          onChange={handleCommonCitySelect}
+          className="select w-full"
         >
-          Clear selection
-        </button>
-      )}
+          <option value="">Select a city</option>
+          {commonCities.map((city) => (
+            <option key={city.name} value={city.name}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <button
+        onClick={() => handleCitySelect(null)}
+        className="clear-selection"
+      >
+        Clear selection
+      </button>
     </div>
   )
 }

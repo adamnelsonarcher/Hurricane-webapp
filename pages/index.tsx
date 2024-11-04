@@ -19,14 +19,39 @@ function getCategoryColor(category: number): string {
   }
 }
 
-// Add this type assertion near the top of the file
 const typedHurricaneData = hurricaneData as Hurricane[]
-
-// Instead, we'll create a type for city data from the geocoding API
 interface CityData {
   name: string;
   coordinates: [number, number];
 }
+
+const commonCities: Array<{ name: string; coordinates: [number, number] }> = [
+  { name: 'New Orleans', coordinates: [29.9511, -90.0715] as [number, number] },
+  { name: 'Houston', coordinates: [29.7604, -95.3698] as [number, number] },
+  { name: 'Tampa', coordinates: [27.9506, -82.4572] as [number, number] },
+  { name: 'Miami', coordinates: [25.7617, -80.1918] as [number, number] },
+  { name: 'Corpus Christi', coordinates: [27.8006, -97.3964] as [number, number] },
+  { name: 'Pensacola', coordinates: [30.4213, -87.2169] as [number, number] },
+  { name: 'Mobile', coordinates: [30.6954, -88.0399] as [number, number] },
+  { name: 'Galveston', coordinates: [29.3013, -94.7977] as [number, number] },
+  { name: 'Biloxi', coordinates: [30.3960, -88.8853] as [number, number] },
+  { name: 'Key West', coordinates: [24.5551, -81.7800] as [number, number] },
+  { name: 'Veracruz', coordinates: [19.1684, -96.1332] as [number, number] },
+  { name: 'Tampico', coordinates: [22.2475, -97.8572] as [number, number] },
+  { name: 'Campeche', coordinates: [19.834969, -90.525902] as [number, number] },
+  { name: 'Cancún', coordinates: [21.157883, -86.852288] as [number, number] },
+  { name: 'Mérida', coordinates: [20.975278, -89.595223] as [number, number] },
+  { name: 'Ciudad del Carmen', coordinates: [18.6583, -91.8035] as [number, number] },
+  { name: 'Progreso', coordinates: [21.2839, -89.6631] as [number, number] },
+  { name: 'Coatzacoalcos', coordinates: [18.1500, -94.4344] as [number, number] },
+  { name: 'Tuxpan', coordinates: [20.9550, -97.3980] as [number, number] },
+  { name: 'Havana', coordinates: [23.1365, -82.3707] as [number, number] },
+  { name: 'Varadero', coordinates: [23.1847, -81.1864] as [number, number] },
+  { name: 'Cienfuegos', coordinates: [22.1501, -80.4479] as [number, number] },
+  { name: 'Belize City', coordinates: [17.5066, -88.1973] as [number, number] },
+  { name: 'George Town', coordinates: [19.2951, -81.3809] as [number, number] },
+  { name: 'Nassau', coordinates: [25.0548, -77.3590] as [number, number] }
+];
 
 export default function HomeTemplate() {
   // State management
@@ -49,11 +74,7 @@ export default function HomeTemplate() {
       return getHurricaneCategory(maxWind) >= 1;  // Only include Cat 1 and higher
     });
   };
-
-  // Use it when initializing the data
   const initialFiltered = getInitialFiltered(typedHurricaneData);
-
-  // Apply initial filters on component mount
   useEffect(() => {
     const initialFiltered = typedHurricaneData.filter(hurricane => {
       const maxWind = Math.max(...hurricane.path.map(p => p.wind));
@@ -243,11 +264,12 @@ export default function HomeTemplate() {
                     border: '1px solid #e5e7eb',
                     marginBottom: '16px'
                   }}>
-                    <h2 style={{ marginBottom: '16px', fontWeight: '600' }}>Select City</h2>
+                    <h2 style={{ marginBottom: '16px', fontWeight: '600' }}>Hurricanes Near a City</h2>
                     <CitySelector 
                       hurricaneData={typedHurricaneData}
                       onCitySelect={handleCitySelect}
                       selectedCity={selectedCity?.name || null}
+                      commonCities={commonCities}
                     />
                   </div>
                 </div>
