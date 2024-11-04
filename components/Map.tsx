@@ -11,6 +11,8 @@ mapboxgl.accessToken = mapboxToken
 
 interface MapProps {
   hurricaneData: Hurricane[]
+  selectedCity?: string | null
+  cities: Array<{ name: string; coordinates: [number, number] }>
 }
 
 interface HurricaneProperties {
@@ -21,10 +23,11 @@ interface HurricaneProperties {
   category: number;
 }
 
-export default function Map({ hurricaneData }: MapProps) {
+export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const popup = useRef<mapboxgl.Popup | null>(null)
+  const cityMarkers = useRef<mapboxgl.Marker[]>([])
 
   useEffect(() => {
     if (!map.current && mapContainer.current) {
@@ -86,6 +89,29 @@ export default function Map({ hurricaneData }: MapProps) {
       updateMapData(map.current)
     }
   }, [hurricaneData])
+
+  useEffect(() => {
+    if (!map.current) return
+
+    // Clear existing markers
+    cityMarkers.current.forEach(marker => marker.remove())
+    cityMarkers.current = []
+
+    // If a city is selected, add its marker
+    if (selectedCity) {
+      const city = cities.find(c => c.name === selectedCity)
+      if (city) {
+        const marker = new mapboxgl.Marker({
+          color: '#3B82F6',
+          scale: 1.2
+        })
+          .setLngLat([city.coordinates[1], city.coordinates[0]])
+          .addTo(map.current)
+
+        cityMarkers.current.push(marker)
+      }
+    }
+  }, [selectedCity, cities])
 
   const updateMapData = (mapInstance: mapboxgl.Map) => {
     if (!mapInstance.isStyleLoaded()) {

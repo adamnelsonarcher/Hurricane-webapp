@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import FilterPanel from '../components/FilterPanel'
 import CitySelector from '../components/CitySelector'
@@ -48,17 +48,30 @@ function getCategoryColor(category: number): string {
   }
 }
 
+// Add this type assertion near the top of the file
+const typedHurricaneData = hurricaneData as Hurricane[]
+
 export default function HomeTemplate() {
   // State management
   const [selectedHurricanes, setSelectedHurricanes] = useState<Hurricane[]>([])
   const [selectedCity, setSelectedCity] = useState<string | null>(null)
-  const [cityHurricanes, setCityHurricanes] = useState<Hurricane[]>(hurricaneData)
+  const [cityHurricanes, setCityHurricanes] = useState<Hurricane[]>(typedHurricaneData)
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
   const [isResultsExpanded, setIsResultsExpanded] = useState(false)
   const [selectedHurricane, setSelectedHurricane] = useState<Hurricane | null>(null)
   const [yearRange, setYearRange] = useState<[number, number]>([1999, 2024])
   const [intensityRange, setIntensityRange] = useState<[number, number]>([0, 200])
-  const [categoryRange, setCategoryRange] = useState<[number, number]>([0, 5])
+  const [categoryRange, setCategoryRange] = useState<[number, number]>([1, 5])
+
+  // Apply initial filters on component mount
+  useEffect(() => {
+    const initialFiltered = typedHurricaneData.filter(hurricane => {
+      const maxWind = Math.max(...hurricane.path.map(p => p.wind));
+      const category = getHurricaneCategory(maxWind);
+      return category >= 1 && category <= 5;  // Initial filter to exclude TDs
+    });
+    setCityHurricanes(initialFiltered);
+  }, []);
 
   // Filter handling functions
   const handleCitySelect = (cityName: string, hurricanes: Hurricane[]) => {
@@ -66,7 +79,7 @@ export default function HomeTemplate() {
     
     if (!cityName) {
       // If no city selected, apply filters to all hurricanes
-      const filteredAll = hurricaneData.filter(hurricane => {
+      const filteredAll = typedHurricaneData.filter(hurricane => {
         const maxWind = Math.max(...hurricane.path.map(p => p.wind));
         const category = getHurricaneCategory(maxWind);
         
@@ -99,7 +112,7 @@ export default function HomeTemplate() {
 
   const applyFilters = () => {
     // Start with either city-filtered hurricanes or all hurricanes
-    const currentSet = selectedCity ? cityHurricanes : hurricaneData;
+    const currentSet = selectedCity ? cityHurricanes : typedHurricaneData;
     
     const filteredHurricanes = currentSet.filter(hurricane => {
       // Year filter
@@ -125,9 +138,9 @@ export default function HomeTemplate() {
   const resetFilters = () => {
     setYearRange([1999, 2024]);
     setIntensityRange([0, 200]);
-    setCategoryRange([0, 5]);
+    setCategoryRange([1, 5]);
     setSelectedCity(null);
-    setCityHurricanes(hurricaneData);
+    setCityHurricanes(typedHurricaneData);
   };
 
   return (
@@ -226,7 +239,7 @@ export default function HomeTemplate() {
                     <h2 style={{ marginBottom: '16px', fontWeight: '600' }}>Select City</h2>
                     <CitySelector 
                       cities={cities}
-                      hurricaneData={hurricaneData}
+                      hurricaneData={typedHurricaneData}
                       onCitySelect={handleCitySelect}
                       selectedCity={selectedCity}
                     />
@@ -368,7 +381,9 @@ export default function HomeTemplate() {
           transition: 'flex 0.3s ease'
         }}>
           <Map 
-            hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : hurricaneData)}
+            hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : typedHurricaneData)}
+            selectedCity={selectedCity}
+            cities={cities}
           />
         </div>
 
