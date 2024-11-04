@@ -7,12 +7,28 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Allow requests from your main domain
         source: '/:path*',
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: 'https://nelsonarcher.com',  // Your main domain
+            value: '*',  // Allow all origins in production
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
+        ],
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -25,6 +41,16 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/api/:path*',
+          destination: '/api/:path*',
+        },
+      ],
+    };
   },
 }
 

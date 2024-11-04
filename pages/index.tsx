@@ -64,14 +64,18 @@ export default function HomeTemplate() {
 
   // Fetch hurricane data and set it as the initial display
   useEffect(() => {
-    fetch('/api/hurricanes')
+    // Use the current origin for API requests
+    const apiUrl = `${window.location.origin}/api/hurricanes`;
+    
+    fetch(apiUrl)
       .then(res => res.json())
       .then(data => {
         setHurricaneData(data)
-        setCityHurricanes(data) // Set all hurricanes initially
+        setCityHurricanes(data)
         setLoading(false)
       })
       .catch(err => {
+        console.error('Error fetching hurricanes:', err);
         setError(err.message)
         setLoading(false)
       })
