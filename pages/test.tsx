@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import FilterPanel from '../components/FilterPanel'
 import CitySelector from '../components/CitySelector'
 import { Hurricane } from '../types/hurricane'
 import { getDistance } from '../utils/distance'
+
+// Dynamic import for Map component (no SSR)
+const Map = dynamic(() => import('../components/Map'), { ssr: false })
 
 // City coordinates from your existing setup
 const cities: Array<{ name: string; coordinates: [number, number] }> = [
@@ -56,6 +60,7 @@ export default function HomeTemplate() {
   const [cityHurricanes, setCityHurricanes] = useState<Hurricane[]>([])
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
   const [isResultsExpanded, setIsResultsExpanded] = useState(false)
+  const [selectedHurricane, setSelectedHurricane] = useState<Hurricane | null>(null)
 
   // Fetch hurricane data and set it as the initial display
   useEffect(() => {
@@ -310,16 +315,24 @@ export default function HomeTemplate() {
                   const maxWind = Math.max(...hurricane.path.map(p => p.wind));
                   const category = getHurricaneCategory(maxWind);
                   const categoryColor = getCategoryColor(category);
+                  const isSelected = selectedHurricane?.id === hurricane.id;
                   
                   return (
-                    <div key={hurricane.id} style={{
-                      padding: '16px',
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      border: '1px solid #e5e7eb',
-                      display: 'flex',
-                      gap: '16px'
-                    }}>
+                    <div 
+                      key={hurricane.id} 
+                      onClick={() => setSelectedHurricane(isSelected ? null : hurricane)}
+                      style={{
+                        padding: '16px',
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        border: `1px solid ${isSelected ? categoryColor : '#e5e7eb'}`,
+                        display: 'flex',
+                        gap: '16px',
+                        cursor: 'pointer',
+                        transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
                       <div style={{
                         width: '48px',
                         height: '48px',
@@ -371,16 +384,9 @@ export default function HomeTemplate() {
           backgroundColor: '#f9fafb',
           transition: 'flex 0.3s ease'
         }}>
-          <div style={{ 
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#9ca3af'
-          }}>
-            [Interactive Map Component]
-          </div>
+          <Map 
+            hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : hurricaneData)}
+          />
         </div>
 
       </div>
