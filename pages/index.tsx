@@ -73,7 +73,7 @@ export default function HomeTemplate() {
       const maxWind = Math.max(...hurricane.path.map(p => p.wind));
       return getHurricaneCategory(maxWind) >= 1 && 
              hurricane.year >= 1999 && 
-             hurricane.year <= 2024;
+             hurricane.year <= 2025;
     });
   };
   const initialFiltered = getInitialFiltered(typedHurricaneData);
@@ -84,7 +84,7 @@ export default function HomeTemplate() {
       return category >= 1 && 
              category <= 5 && 
              hurricane.year >= 1999 && 
-             hurricane.year <= 2024;
+             hurricane.year <= 2025;
     });
     setCityHurricanes(initialFiltered);
   }, []);
@@ -100,7 +100,7 @@ export default function HomeTemplate() {
         
         return (
           hurricane.year >= yearRange[0] && 
-          hurricane.year <= yearRange[1] &&
+          hurricane.year <= yearRange[1]+1 &&
           hurricane.path.some(point => point.wind >= intensityRange[0] && point.wind <= intensityRange[1]) &&
           category >= categoryRange[0] && 
           category <= categoryRange[1]
@@ -150,15 +150,14 @@ export default function HomeTemplate() {
       const category = getHurricaneCategory(maxWind);
       if (category < categoryRange[0] || category > categoryRange[1]) return false;
 
-      const meetsMinPressure = hurricane.min_pressure >= pressureRange[0] && 
-                              hurricane.min_pressure <= pressureRange[1]
-      
-      const meetsAce = hurricane.ace >= aceRange[0] && 
-                       hurricane.ace <= aceRange[1]
+      // Add pressure and ACE filters
+      if (hurricane.min_pressure < pressureRange[0] || hurricane.min_pressure > pressureRange[1]) return false;
+      if (hurricane.ace < aceRange[0] || hurricane.ace > aceRange[1]) return false;
 
-      return meetsMinPressure && meetsAce;
+      return true;
     });
 
+    // If no hurricanes match the filters, set an empty array instead of reverting to all hurricanes
     setCityHurricanes(filteredHurricanes);
   };
 
@@ -229,7 +228,7 @@ export default function HomeTemplate() {
                     cursor: 'pointer'
                   }}
                 >
-                  {isFiltersCollapsed ? '🔽' : '🔼'}
+                  {isFiltersCollapsed ? 'Expand' : 'Collapse'}
                 </button>
               </div>
 
@@ -422,7 +421,7 @@ export default function HomeTemplate() {
           transition: 'flex 0.3s ease'
         }}>
           <Map 
-            hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : typedHurricaneData)}
+            hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : [])}
             selectedCity={selectedCity?.name || null}
             cities={selectedCity ? [{ name: selectedCity.name, coordinates: selectedCity.coordinates }] : []}
           />
