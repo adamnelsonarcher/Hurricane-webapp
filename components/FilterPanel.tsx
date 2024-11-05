@@ -45,7 +45,7 @@ export default function FilterPanel({
         <div className="px-2">
           <Slider
             range
-            min={1999}
+            min={1990}
             max={2024}
             value={yearRange}
             onChange={(value: number | number[]) => {
@@ -134,7 +134,7 @@ export default function FilterPanel({
         <div className="px-2">
           <Slider
             range
-            min={900}
+            min={800}
             max={1020}
             step={1}
             value={pressureRange}

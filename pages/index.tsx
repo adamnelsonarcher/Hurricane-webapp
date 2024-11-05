@@ -64,14 +64,16 @@ export default function HomeTemplate() {
   const [yearRange, setYearRange] = useState<[number, number]>([1999, 2024])
   const [intensityRange, setIntensityRange] = useState<[number, number]>([0, 200])
   const [categoryRange, setCategoryRange] = useState<[number, number]>([1, 5])
-  const [pressureRange, setPressureRange] = useState<[number, number]>([900, 1020])
+  const [pressureRange, setPressureRange] = useState<[number, number]>([800, 1020])
   const [aceRange, setAceRange] = useState<[number, number]>([0, 100])
 
   // Add this near the top of your component, after state declarations
   const getInitialFiltered = (data: Hurricane[]) => {
     return data.filter(hurricane => {
       const maxWind = Math.max(...hurricane.path.map(p => p.wind));
-      return getHurricaneCategory(maxWind) >= 1;  // Only include Cat 1 and higher
+      return getHurricaneCategory(maxWind) >= 1 && 
+             hurricane.year >= 1999 && 
+             hurricane.year <= 2024;
     });
   };
   const initialFiltered = getInitialFiltered(typedHurricaneData);
@@ -79,7 +81,10 @@ export default function HomeTemplate() {
     const initialFiltered = typedHurricaneData.filter(hurricane => {
       const maxWind = Math.max(...hurricane.path.map(p => p.wind));
       const category = getHurricaneCategory(maxWind);
-      return category >= 1 && category <= 5; 
+      return category >= 1 && 
+             category <= 5 && 
+             hurricane.year >= 1999 && 
+             hurricane.year <= 2024;
     });
     setCityHurricanes(initialFiltered);
   }, []);
@@ -161,9 +166,10 @@ export default function HomeTemplate() {
     setYearRange([1999, 2024]);
     setIntensityRange([0, 200]);
     setCategoryRange([1, 5]);
-    setPressureRange([900, 1020]);
+    setPressureRange([800, 1020]);
     setAceRange([0, 100]);
     setSelectedCity(null);
+
     setCityHurricanes(getInitialFiltered(typedHurricaneData));
   };
 
