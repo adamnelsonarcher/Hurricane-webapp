@@ -115,6 +115,17 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
     }
   }, [selectedCity, cities])
 
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.href = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
   const updateMapData = (mapInstance: mapboxgl.Map) => {
     if (!mapInstance.isStyleLoaded()) {
       setTimeout(() => updateMapData(mapInstance), 100)
