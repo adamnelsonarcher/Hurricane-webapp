@@ -35,7 +35,7 @@ const Legend = () => (
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     zIndex: 1
   }}>
-    <h4 style={{ fontWeight: '600', marginBottom: '8px' }}>Hurricane Categories</h4>
+    
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ width: '20px', height: '3px', backgroundColor: '#7e22ce' }}></div>
@@ -56,6 +56,10 @@ const Legend = () => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ width: '20px', height: '3px', backgroundColor: '#65a30d' }}></div>
         <span>Category 1</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#6b7280' }}></div>
+        <span>Category 0 / TD</span>
       </div>
     </div>
   </div>
@@ -297,7 +301,7 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
       if (city) {
         const marker = new mapboxgl.Marker({
           color: '#3B82F6',
-          scale: 1.2
+          scale: 1.1
         })
           .setLngLat([city.coordinates[1], city.coordinates[0]])
           .addTo(map.current)
