@@ -179,10 +179,10 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
     }
 
     // Remove existing layers and sources
-    ['hurricane-paths', 'hurricane-paths-hit-area', 'path-points'].forEach(layer => {
+    ['hurricane-paths', 'hurricane-paths-hit-area', 'path-points', 'path-endpoints', 'path-arrows'].forEach(layer => {
       if (mapInstance.getLayer(layer)) mapInstance.removeLayer(layer)
     });
-    ['hurricane-paths', 'path-points'].forEach(source => {
+    ['hurricane-paths', 'path-points', 'path-endpoints', 'path-arrows'].forEach(source => {
       if (mapInstance.getSource(source)) mapInstance.removeSource(source)
     });
 
@@ -206,15 +206,100 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
       }
     })
 
-    mapInstance.addSource('hurricane-paths', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features
-      }
+    const endpointFeatures = hurricaneData.flatMap(hurricane => {
+      const path = hurricane.path
+      const category = getHurricaneCategory(Math.max(...path.map(p => p.wind)))
+      
+      return [
+        {
+          type: 'Feature' as const,
+          properties: { category },
+          geometry: {
+            type: 'Point' as const,
+            coordinates: [path[0].lon, path[0].lat]
+          }
+        },
+        {
+          type: 'Feature' as const,
+          properties: { category },
+          geometry: {
+            type: 'Point' as const,
+            coordinates: [path[path.length - 1].lon, path[path.length - 1].lat]
+          }
+        }
+      ]
     })
 
-    // Add a wider invisible line for better hit detection
+    // Create arrow features using line segments
+    const arrowFeatures = hurricaneData.flatMap(hurricane => {
+      const path = hurricane.path
+      const category = getHurricaneCategory(Math.max(...path.map(p => p.wind)))
+      
+      return path.slice(0, -1).map((point, i) => {
+        const nextPoint = path[i + 1]
+        
+        // Calculate distance between points
+        const dx = nextPoint.lon - point.lon
+        const dy = nextPoint.lat - point.lat
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        
+        // Skip very short segments
+        if (distance < 0.1) return null
+
+        // Calculate midpoint
+        const midX = (point.lon + nextPoint.lon) / 2
+        const midY = (point.lat + nextPoint.lat) / 2
+
+        // Calculate normalized direction vector
+        const dirX = (nextPoint.lon - point.lon) / distance
+        const dirY = (nextPoint.lat - point.lat) / distance
+
+        // Create arrow head points
+        const arrowLength = 0.15  // Adjust this to change arrow size
+        const arrowWidth = 0.08   // Adjust this to change arrow width
+        
+        // Arrow head coordinates
+        const tip = [midX + dirX * arrowLength/2, midY + dirY * arrowLength/2]
+        const back = [midX - dirX * arrowLength/2, midY - dirY * arrowLength/2]
+        const left = [
+          back[0] - dirY * arrowWidth,
+          back[1] + dirX * arrowWidth
+        ]
+        const right = [
+          back[0] + dirY * arrowWidth,
+          back[1] - dirX * arrowWidth
+        ]
+
+        return {
+          type: 'Feature' as const,
+          properties: { category },
+          geometry: {
+            type: 'LineString' as const,
+            coordinates: [
+              left,
+              tip,
+              right
+            ]
+          }
+        }
+      }).filter(feature => feature !== null)
+    })
+
+    mapInstance.addSource('hurricane-paths', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features }
+    })
+
+    mapInstance.addSource('path-endpoints', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: endpointFeatures }
+    })
+
+    mapInstance.addSource('path-arrows', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: arrowFeatures }
+    })
+
     mapInstance.addLayer({
       id: 'hurricane-paths-hit-area',
       type: 'line',
@@ -230,7 +315,6 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
       }
     })
 
-    // Original visible line on top
     mapInstance.addLayer({
       id: 'hurricane-paths',
       type: 'line',
@@ -255,7 +339,52 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
       }
     })
 
-    // Add the point features if needed
+    mapInstance.addLayer({
+      id: 'path-endpoints',
+      type: 'circle',
+      source: 'path-endpoints',
+      paint: {
+        'circle-radius': 4,
+        'circle-color': [
+          'match',
+          ['get', 'category'],
+          5, '#7e22ce',
+          4, '#dc2626',
+          3, '#ea580c',
+          2, '#ca8a04',
+          1, '#65a30d',
+          '#6b7280'
+        ],
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff'
+      }
+    })
+
+    // Replace the symbol layer with a line layer for arrows
+    mapInstance.addLayer({
+      id: 'path-arrows',
+      type: 'line',
+      source: 'path-arrows',
+      layout: {
+        'line-join': 'miter',
+        'line-cap': 'butt'
+      },
+      paint: {
+        'line-color': [
+          'match',
+          ['get', 'category'],
+          5, '#7e22ce',
+          4, '#dc2626',
+          3, '#ea580c',
+          2, '#ca8a04',
+          1, '#65a30d',
+          '#6b7280'
+        ],
+        'line-width': hurricaneData.length === 1 ? 3 : 2,
+        'line-opacity': 0.8
+      }
+    })
+
     if (hurricaneData.length === 1) {
       const pointFeatures = hurricaneData[0].path.map((point, index) => ({
         type: 'Feature' as const,
