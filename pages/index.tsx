@@ -210,26 +210,91 @@ export default function HomeTemplate() {
           }}>
             <div style={{
               backgroundColor: 'white',
-              padding: '24px',
-              borderRadius: '12px',
-              maxWidth: '500px',
+              padding: '32px',
+              borderRadius: '16px',
+              maxWidth: '600px',
               width: '90%'
             }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '16px', color: '#1f2937' }}>About This Project</h2>
-              <p style={{ marginBottom: '16px', color: '#374151' }}>
-                Data sourced from the National Hurricane Center's HURDAT2 database.
-              </p>
-              <p style={{ marginBottom: '16px', color: '#374151' }}>
-                Created by [Your Names Here]
-              </p>
+              <h2 style={{ 
+                fontSize: '1.75rem', 
+                fontWeight: '600', 
+                marginBottom: '24px', 
+                color: '#1f2937',
+                borderBottom: '1px solid #e5e7eb',
+                paddingBottom: '16px'
+              }}>
+                About This Project
+              </h2>
+
+              <div style={{ marginBottom: '24px', color: '#374151' }}>
+                <p style={{ marginBottom: '16px', lineHeight: '1.6' }}>
+                  This was created for my COSC3337 class at the University of Houston.
+                  This is an interactive visualization of hurricane data in the Gulf Coast region, 
+                  showing paths and patterns from 1990 to present.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '24px', color: '#374151', fontStyle: 'italic' }}>
+                <p style={{ marginBottom: '8px', lineHeight: '1.6' }}>
+                  Designed and developed by me, Adam Nelson-Archer.
+                </p>
+                <p style={{ marginBottom: '8px', lineHeight: '1.6' }}>
+                  Hosted on my website, <a 
+                    href="https://nelsonarcher.com/demos" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ color: '#2563eb', textDecoration: 'underline' }}
+                  >
+                    nelsonarcher.com
+                  </a>
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '24px', color: '#374151' }}>
+                <h3 style={{ 
+                  fontSize: '1.2rem', 
+                  fontWeight: '600', 
+                  marginBottom: '12px',
+                  color: '#2563eb'
+                }}>
+                  Data Sources
+                </h3>
+                <ul style={{ marginBottom: '16px', lineHeight: '1.6' }}>
+                  <li>Hurricane data: <a 
+                      href="https://www.nhc.noaa.gov/data/#hurdat" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: '#2563eb', textDecoration: 'underline' }}
+                    >
+                      NOAA National Hurricane Center (HURDAT2)
+                    </a>
+                  </li>
+                  <li>API: <a 
+                      href="https://tropycal.github.io/tropycal/index.html" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: '#2563eb', textDecoration: 'underline' }}
+                    >
+                      TroPyCal
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+             
+
               <button
                 onClick={() => setIsOpen(false)}
                 style={{
-                  padding: '8px 24px',
-                  backgroundColor: '#3B82F6',
+                  padding: '10px 24px',
+                  backgroundColor: '#2563eb',
                   color: 'white',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  border: 'none',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  transition: 'background-color 0.2s ease',
                 }}
               >
                 Close
