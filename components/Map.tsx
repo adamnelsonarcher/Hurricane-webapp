@@ -24,6 +24,43 @@ interface HurricaneProperties {
   category: number;
 }
 
+const Legend = () => (
+  <div style={{
+    position: 'absolute',
+    bottom: '24px',
+    right: '24px',
+    backgroundColor: 'white',
+    padding: '12px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    zIndex: 1
+  }}>
+    <h4 style={{ fontWeight: '600', marginBottom: '8px' }}>Hurricane Categories</h4>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#7e22ce' }}></div>
+        <span>Category 5</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#dc2626' }}></div>
+        <span>Category 4</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#ea580c' }}></div>
+        <span>Category 3</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#ca8a04' }}></div>
+        <span>Category 2</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#65a30d' }}></div>
+        <span>Category 1</span>
+      </div>
+    </div>
+  </div>
+)
+
 export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
@@ -238,7 +275,10 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
   }
 
   return (
-    <div ref={mapContainer} style={{ height: '100%', width: '100%' }} />
+    <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+      <div ref={mapContainer} style={{ height: '100%', width: '100%' }} />
+      <Legend />
+    </div>
   )
 }
 

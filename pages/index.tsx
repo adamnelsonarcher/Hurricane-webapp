@@ -172,52 +172,139 @@ export default function HomeTemplate() {
     setCityHurricanes(getInitialFiltered(typedHurricaneData));
   };
 
+  const InfoButton = () => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <>
+        <button
+          onClick={() => setIsOpen(true)}
+          style={{
+            backgroundColor: 'transparent',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '50%',
+            color: 'white'
+          }}
+        >
+          ℹ️
+        </button>
+
+        {isOpen && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              maxWidth: '500px',
+              width: '90%'
+            }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '16px', color: '#1f2937' }}>About This Project</h2>
+              <p style={{ marginBottom: '16px', color: '#374151' }}>
+                Data sourced from the National Hurricane Center's HURDAT2 database.
+              </p>
+              <p style={{ marginBottom: '16px', color: '#374151' }}>
+                Created by [Your Names Here]
+              </p>
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{
+                  padding: '8px 24px',
+                  backgroundColor: '#3B82F6',
+                  color: 'white',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
   return (
     <div style={{ 
       height: '100vh', 
       width: '100vw', 
-      padding: '24px',
-      backgroundColor: '#f3f4f6'
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
     }}>
-      <div style={{ 
-        height: '100%',
-        width: '100%',
+      <div style={{
         display: 'flex',
-        backgroundColor: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '6px 24px',
+        backgroundColor: '#2563eb',
+        color: 'white'
+      }}>
+        <h1 style={{
+          fontSize: '1.5rem',
+          fontWeight: '600',
+          color: 'white'
+        }}>
+          Hurricanes in the Gulf Coast
+        </h1>
+        <InfoButton />
+      </div>
+      <div style={{ 
+        flex: 1,
+        padding: '24px',
+        backgroundColor: '#f3f4f6',
         overflow: 'hidden'
       }}>
-        
-        {/* Left Panel */}
         <div style={{ 
-          width: isResultsExpanded ? '600px' : '450px',
+          height: '100%',
+          width: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          borderRight: '1px solid #e5e7eb',
-          transition: 'width 0.3s ease'
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+          overflow: 'hidden'
         }}>
-          {/* Filters Section with collapse button */}
-          <div style={{
-            backgroundColor: 'white',
-            borderBottom: '1px solid #e5e7eb',
-            transition: 'height 0.3s ease'
+          
+          {/* Left Panel */}
+          <div style={{ 
+            width: isResultsExpanded ? '600px' : '450px',
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: '1px solid #e5e7eb',
+            transition: 'width 0.3s ease'
           }}>
+            {/* Filters Section with collapse button */}
             <div style={{
-              padding: '32px',
-              paddingBottom: isFiltersCollapsed ? '16px' : '32px'
+              backgroundColor: 'white',
+              borderBottom: '1px solid #e5e7eb'
             }}>
+              {/* Header - Always visible */}
               <div style={{
+                padding: '16px 32px',
+                borderBottom: '1px solid #e5e7eb',
+                backgroundColor: 'white',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: isFiltersCollapsed ? '0' : '24px'
+                alignItems: 'center'
               }}>
-                <h1 style={{ 
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  margin: 0
-                }}>Filters</h1>
+                <h2 style={{ fontWeight: '600' }}>Filters</h2>
                 <button
                   onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
                   style={{
@@ -228,205 +315,220 @@ export default function HomeTemplate() {
                     cursor: 'pointer'
                   }}
                 >
-                  {isFiltersCollapsed ? 'Expand' : 'Collapse'}
+                  {isFiltersCollapsed ? 'expand' : 'collpase'}
+                </button>
+              </div>
+              
+              {/* Collapsible content */}
+              <div style={{
+                height: isFiltersCollapsed ? '0' : '400px',
+                transition: 'height 0.3s ease',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  height: '100%',
+                  overflowY: 'auto',
+                  padding: '24px'
+                }}>
+                  {/* Rest of your filters content */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ 
+                      padding: '24px',
+                      backgroundColor: '#f9fafb',
+                      borderRadius: '12px',
+                      border: '1px solid #e5e7eb'
+                    }}>
+                      <h2 style={{ marginBottom: '16px', fontWeight: '600' }}></h2>
+                      <FilterPanel 
+                        yearRange={yearRange}
+                        intensityRange={intensityRange}
+                        categoryRange={categoryRange}
+                        pressureRange={pressureRange}
+                        aceRange={aceRange}
+                        onYearChange={setYearRange}
+                        onIntensityChange={setIntensityRange}
+                        onCategoryChange={setCategoryRange}
+                        onPressureChange={setPressureRange}
+                        onAceChange={setAceRange}
+                        onApply={applyFilters}
+                        onReset={resetFilters}
+                      />
+                    </div>
+                    
+                    <div style={{ 
+                      padding: '24px',
+                      backgroundColor: '#f9fafb',
+                      borderRadius: '12px',
+                      border: '1px solid #e5e7eb',
+                      marginBottom: '16px'
+                    }}>
+                      <h2 style={{ marginBottom: '16px', fontWeight: '600' }}>Hurricanes Near a City</h2>
+                      <CitySelector 
+                        hurricaneData={typedHurricaneData}
+                        onCitySelect={handleCitySelect}
+                        selectedCity={selectedCity?.name || null}
+                        commonCities={commonCities}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Results Section with expand button */}
+            <div style={{ 
+              height: isFiltersCollapsed ? 'calc(100% - 76px)' : '500px',
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: '#f9fafb',
+              overflow: 'hidden',
+              transition: 'height 0.3s ease'
+            }}>
+              {/* Results Header */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '24px',
+                borderBottom: '1px solid #e5e7eb'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <h2 style={{ 
+                    fontWeight: '600',
+                    margin: 0
+                  }}>
+                    {selectedCity ? `Hurricanes Near ${selectedCity.name}` : 'Hurricanes'}
+                  </h2>
+                  <span style={{ 
+                    backgroundColor: '#dbeafe',
+                    color: '#1e40af',
+                    padding: '4px 12px',
+                    borderRadius: '9999px',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
+                    {cityHurricanes.length} results
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsResultsExpanded(!isResultsExpanded)}
+                  style={{
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isResultsExpanded ? '◀️' : '▶️'}
                 </button>
               </div>
 
-              {/* Collapsible content */}
-              <div style={{
-                display: isFiltersCollapsed ? 'none' : 'block',
-                transition: 'all 0.3s ease'
+              {/* Scrollable Results */}
+              <div style={{ 
+                flex: 1,
+                overflowY: 'auto',
+                padding: '24px',
+                height: '100%'
               }}>
-                {/* Filters */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <div style={{ 
-                    padding: '24px',
-                    backgroundColor: '#f9fafb',
-                    borderRadius: '12px',
-                    border: '1px solid #e5e7eb'
-                  }}>
-                    <h2 style={{ marginBottom: '16px', fontWeight: '600' }}></h2>
-                    <FilterPanel 
-                      yearRange={yearRange}
-                      intensityRange={intensityRange}
-                      categoryRange={categoryRange}
-                      pressureRange={pressureRange}
-                      aceRange={aceRange}
-                      onYearChange={setYearRange}
-                      onIntensityChange={setIntensityRange}
-                      onCategoryChange={setCategoryRange}
-                      onPressureChange={setPressureRange}
-                      onAceChange={setAceRange}
-                      onApply={applyFilters}
-                      onReset={resetFilters}
-                    />
-                  </div>
-                  
-                  <div style={{ 
-                    padding: '24px',
-                    backgroundColor: '#f9fafb',
-                    borderRadius: '12px',
-                    border: '1px solid #e5e7eb',
-                    marginBottom: '16px'
-                  }}>
-                    <h2 style={{ marginBottom: '16px', fontWeight: '600' }}>Hurricanes Near a City</h2>
-                    <CitySelector 
-                      hurricaneData={typedHurricaneData}
-                      onCitySelect={handleCitySelect}
-                      selectedCity={selectedCity?.name || null}
-                      commonCities={commonCities}
-                    />
-                  </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {cityHurricanes.map(hurricane => {
+                    const maxWind = Math.max(...hurricane.path.map(p => p.wind));
+                    const category = getHurricaneCategory(maxWind);
+                    const categoryColor = getCategoryColor(category);
+                    const isSelected = selectedHurricane?.id === hurricane.id;
+                    
+                    return (
+                      <div 
+                        key={hurricane.id} 
+                        onClick={() => setSelectedHurricane(isSelected ? null : hurricane)}
+                        style={{
+                          padding: '16px',
+                          backgroundColor: 'white',
+                          borderRadius: '12px',
+                          border: `1px solid ${isSelected ? categoryColor : '#e5e7eb'}`,
+                          display: 'flex',
+                          gap: '16px',
+                          cursor: 'pointer',
+                          transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{
+                          width: '48px',
+                          height: '48px',
+                          backgroundColor: categoryColor,
+                          color: 'white',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '24px',
+                          fontWeight: 'bold'
+                        }}>
+                          {category}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between',
+                            marginBottom: '8px'
+                          }}>
+                            <h3 style={{ fontWeight: '500' }}>
+                              {`${hurricane.id} (${hurricane.name})`}
+                            </h3>
+                            <span style={{ color: '#6b7280', fontSize: '14px' }}>
+                              {hurricane.year}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '14px', color: '#4b5563' }}>
+                          <div>{new Date(hurricane.start_time).toLocaleDateString()} - {new Date(hurricane.end_time).toLocaleDateString()}</div>
+                            <div>Max Wind: {hurricane.max_wind} knots</div>
+                            <div>Min Pressure: {hurricane.min_pressure} hPa</div>
+                            <div>Category: {getHurricaneCategory(hurricane.max_wind)}</div>
+                            <div>ACE: {hurricane.ace.toFixed(2)}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {selectedCity && cityHurricanes.length === 0 && (
+                    <div style={{
+                      padding: '24px',
+                      textAlign: 'center',
+                      color: '#6b7280'
+                    }}>
+                      No hurricanes found matching the current filters
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Results Section with expand button */}
+          {/* Right Panel - Map */}
           <div style={{ 
-            height: isFiltersCollapsed ? 'calc(100% - 76px)' : '500px',
-            display: 'flex',
-            flexDirection: 'column',
+            flex: 1,
             backgroundColor: '#f9fafb',
-            overflow: 'hidden',
-            transition: 'height 0.3s ease'
+            transition: 'flex 0.3s ease',
+            display: 'flex',
+            alignItems: 'center'
           }}>
-            {/* Results Header */}
-            <div style={{
-              padding: '16px 32px',
-              borderBottom: '1px solid #e5e7eb',
-              backgroundColor: 'white',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <h2 style={{ fontWeight: '600' }}>
-                  {selectedCity ? `Hurricanes Near ${selectedCity.name}` : 'All Hurricanes'}
-                </h2>
-                <span style={{ 
-                  backgroundColor: '#dbeafe',
-                  color: '#1e40af',
-                  padding: '4px 12px',
-                  borderRadius: '9999px',
-                  fontSize: '14px'
-                }}>
-                  {cityHurricanes.length} results
-                </span>
-              </div>
-              <button
-                onClick={() => setIsResultsExpanded(!isResultsExpanded)}
-                style={{
-                  padding: '8px',
-                  borderRadius: '6px',
-                  border: '1px solid #e5e7eb',
-                  backgroundColor: 'white',
-                  cursor: 'pointer'
-                }}
-              >
-                {isResultsExpanded ? '◀️' : '▶️'}
-              </button>
-            </div>
-
-            {/* Scrollable Results */}
-            <div style={{ 
-              flex: 1,
-              overflowY: 'auto',
-              padding: '24px',
-              height: '100%'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {cityHurricanes.map(hurricane => {
-                  const maxWind = Math.max(...hurricane.path.map(p => p.wind));
-                  const category = getHurricaneCategory(maxWind);
-                  const categoryColor = getCategoryColor(category);
-                  const isSelected = selectedHurricane?.id === hurricane.id;
-                  
-                  return (
-                    <div 
-                      key={hurricane.id} 
-                      onClick={() => setSelectedHurricane(isSelected ? null : hurricane)}
-                      style={{
-                        padding: '16px',
-                        backgroundColor: 'white',
-                        borderRadius: '12px',
-                        border: `1px solid ${isSelected ? categoryColor : '#e5e7eb'}`,
-                        display: 'flex',
-                        gap: '16px',
-                        cursor: 'pointer',
-                        transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <div style={{
-                        width: '48px',
-                        height: '48px',
-                        backgroundColor: categoryColor,
-                        color: 'white',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '24px',
-                        fontWeight: 'bold'
-                      }}>
-                        {category}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          marginBottom: '8px'
-                        }}>
-                          <h3 style={{ fontWeight: '500' }}>
-                            {`${hurricane.id} (${hurricane.name})`}
-                          </h3>
-                          <span style={{ color: '#6b7280', fontSize: '14px' }}>
-                            {hurricane.year}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '14px', color: '#4b5563' }}>
-                        <div>{new Date(hurricane.start_time).toLocaleDateString()} - {new Date(hurricane.end_time).toLocaleDateString()}</div>
-                          <div>Max Wind: {hurricane.max_wind} knots</div>
-                          <div>Min Pressure: {hurricane.min_pressure} hPa</div>
-                          <div>Category: {getHurricaneCategory(hurricane.max_wind)}</div>
-                          <div>ACE: {hurricane.ace.toFixed(2)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                {selectedCity && cityHurricanes.length === 0 && (
-                  <div style={{
-                    padding: '24px',
-                    textAlign: 'center',
-                    color: '#6b7280'
-                  }}>
-                    No hurricanes found matching the current filters
-                  </div>
-                )}
-              </div>
+            <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+              <Map 
+                hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : [])}
+                selectedCity={selectedCity?.name || null}
+                cities={selectedCity ? [{ name: selectedCity.name, coordinates: selectedCity.coordinates }] : []}
+              />
             </div>
           </div>
-        </div>
 
-        {/* Right Panel - Map */}
-        <div style={{ 
-          flex: 1,
-          backgroundColor: '#f9fafb',
-          transition: 'flex 0.3s ease'
-        }}>
-          <Map 
-            hurricaneData={selectedHurricane ? [selectedHurricane] : (cityHurricanes.length ? cityHurricanes : [])}
-            selectedCity={selectedCity?.name || null}
-            cities={selectedCity ? [{ name: selectedCity.name, coordinates: selectedCity.coordinates }] : []}
-          />
         </div>
-
       </div>
     </div>
   )
