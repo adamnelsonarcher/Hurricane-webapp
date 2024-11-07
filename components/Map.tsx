@@ -492,7 +492,13 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
       newMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
       newMap.on('style.load', () => {
-        updateMapData(newMap)
+        map.current = newMap
+        newMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
+        
+        // Only update data once the style is fully loaded
+        if (hurricaneData.length > 0) {
+          updateMapData(newMap)
+        }
         
         // Add event handlers after the layers are created
         // Handler for the hit area
@@ -545,20 +551,15 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
           }
         })
       })
-    } else if (map.current) {
-      updateMapData(map.current)
     }
+  }, []) // Only run on mount
 
-    return () => {
-      popup.current?.remove()
-    }
-  }, [])
-
+  // Separate effect for data updates
   useEffect(() => {
-    if (map.current) {
+    if (map.current && map.current.isStyleLoaded()) {
       updateMapData(map.current)
     }
-  }, [hurricaneData])
+  }, [hurricaneData, showArrows])
 
   useEffect(() => {
     if (!map.current) return

@@ -341,6 +341,84 @@ export default function HomeTemplate() {
     }
   }, [])
 
+  // Find Houston in commonCities
+  const houstonCity = commonCities.find(city => city.name === 'Houston')!
+
+  // Combine the initial data setup into a single useEffect
+  useEffect(() => {
+    if (houstonCity) {
+      // Get the filtered data once
+      const filteredHurricanes = typedHurricaneData.filter(hurricane => {
+        // Distance filter for Houston
+        const isNearHouston = hurricane.path.some(point => {
+          const distance = getDistance(
+            [point.lat, point.lon],
+            houstonCity.coordinates
+          )
+          return distance <= 200
+        })
+
+        // Apply all other default filters
+        const maxWind = Math.max(...hurricane.path.map(p => p.wind))
+        const category = getHurricaneCategory(maxWind)
+        
+        return isNearHouston && (
+          hurricane.year >= yearRange[0] && 
+          hurricane.year <= yearRange[1] &&
+          hurricane.path.some(point => point.wind >= intensityRange[0] && point.wind <= intensityRange[1]) &&
+          category >= categoryRange[0] && 
+          category <= categoryRange[1] &&
+          hurricane.min_pressure >= pressureRange[0] && 
+          hurricane.min_pressure <= pressureRange[1] &&
+          hurricane.ace >= aceRange[0] && 
+          hurricane.ace <= aceRange[1]
+        )
+      })
+
+      // Set all related state at once
+      setSelectedCity({
+        name: houstonCity.name,
+        coordinates: houstonCity.coordinates
+      })
+      setCityHurricanes(filteredHurricanes)
+    }
+  }, []) // Run once on mount
+
+  // Remove or comment out this useEffect as it's now redundant
+  /*
+  useEffect(() => {
+    const initialFiltered = typedHurricaneData.filter(hurricane => {
+      const maxWind = Math.max(...hurricane.path.map(p => p.wind));
+      const category = getHurricaneCategory(maxWind);
+      return category >= 1 && 
+             category <= 5 && 
+             hurricane.year >= 1999 && 
+             hurricane.year <= 2025;
+    });
+    setCityHurricanes(initialFiltered);
+  }, []);
+  */
+
+  // Add this helper function if not already present
+  function getDistance(
+    [lat1, lon1]: [number, number],
+    [lat2, lon2]: [number, number]
+  ): number {
+    const R = 6371 // Earth's radius in km
+    const dLat = toRad(lat2 - lat1)
+    const dLon = toRad(lon2 - lon1)
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    return R * c
+  }
+
+  function toRad(deg: number): number {
+    return deg * Math.PI / 180
+  }
+
   return (
     <div style={{ 
       height: '100vh', 
