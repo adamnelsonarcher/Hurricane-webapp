@@ -253,13 +253,15 @@ export default function HomeTemplate() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '6px 24px',
+        padding: '0 32px',
+        height: '64px',
         backgroundColor: '#2563eb',
         color: 'white'
       }}>
-        <h1 style={{
-          fontSize: '1.5rem',
-          fontWeight: '600',
+        <h1 style={{ 
+          margin: 0,
+          fontSize: '20px',
+          lineHeight: '48px',
           color: 'white'
         }}>
           Hurricanes in the Gulf Coast
@@ -386,21 +388,19 @@ export default function HomeTemplate() {
             }}>
               {/* Results Header */}
               <div style={{
+                padding: '16px 32px',
+                borderBottom: '1px solid #e5e7eb',
+                backgroundColor: 'white',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '24px',
-                borderBottom: '1px solid #e5e7eb'
+                alignItems: 'center'
               }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '12px'
                 }}>
-                  <h2 style={{ 
-                    fontWeight: '600',
-                    margin: 0
-                  }}>
+                  <h2 style={{ fontWeight: '600' }}>
                     {selectedCity ? `Hurricanes Near ${selectedCity.name}` : 'Hurricanes'}
                   </h2>
                   <span style={{ 
@@ -408,9 +408,7 @@ export default function HomeTemplate() {
                     color: '#1e40af',
                     padding: '4px 12px',
                     borderRadius: '9999px',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center'
+                    fontSize: '14px'
                   }}>
                     {cityHurricanes.length} results
                   </span>
@@ -515,9 +513,7 @@ export default function HomeTemplate() {
           <div style={{ 
             flex: 1,
             backgroundColor: '#f9fafb',
-            transition: 'flex 0.3s ease',
-            display: 'flex',
-            alignItems: 'center'
+            transition: 'flex 0.3s ease'
           }}>
             <div style={{ position: 'relative', height: '100%', width: '100%' }}>
               <Map 
