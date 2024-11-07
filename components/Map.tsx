@@ -478,8 +478,8 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
       const newMap = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: [-90, 25],
-        zoom: 5
+        center: [-88, 24],
+        zoom: 4.5
       })
 
       popup.current = new mapboxgl.Popup({
