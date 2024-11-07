@@ -192,10 +192,6 @@ export default function HomeTemplate() {
             color: 'white',
             fontSize: '20px',
             transition: 'all 0.2s ease',
-            hover: {
-              borderColor: 'rgba(255,255,255,0.8)',
-              transform: 'scale(1.05)'
-            }
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'rgba(255,255,255,0.8)'
@@ -303,8 +299,6 @@ export default function HomeTemplate() {
                   </li>
                 </ul>
               </div>
-
-             
 
               <button
                 onClick={() => setIsOpen(false)}
