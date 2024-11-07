@@ -340,11 +340,15 @@ export default function HomeTemplate() {
   // Find Houston in commonCities
   const houstonCity = commonCities.find(city => city.name === 'Houston')!
 
-  // Single initialization effect
+  // Add a state to track if initial load has happened
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Modify the initialization effect
   useEffect(() => {
-    // Only run initialization if we haven't already filtered the data
-    if (houstonCity && typedHurricaneData.length > 0 && cityHurricanes.length === typedHurricaneData.length) {
-      // Get Houston's hurricanes
+    if (houstonCity && 
+        typedHurricaneData.length > 0 && 
+        !hasInitialized  // Only run if we haven't initialized yet
+    ) {
       const houstonHurricanes = typedHurricaneData.filter(hurricane => {
         return hurricane.path.some(point => {
           const distance = getDistance(
@@ -355,14 +359,15 @@ export default function HomeTemplate() {
         })
       })
 
-      // First set Houston as selected city
       handleCitySelect(
         houstonCity.name,
         houstonCity.coordinates,
         houstonHurricanes
       )
+      
+      setHasInitialized(true)  // Mark as initialized
     }
-  }, [typedHurricaneData, cityHurricanes.length]) // Add cityHurricanes.length as dependency
+  }, [typedHurricaneData, hasInitialized])
 
   // Add this helper function if not already present
   function getDistance(
