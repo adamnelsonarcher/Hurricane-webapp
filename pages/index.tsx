@@ -338,60 +338,29 @@ export default function HomeTemplate() {
   // Find Houston in commonCities
   const houstonCity = commonCities.find(city => city.name === 'Houston')!
 
-  // Combine the initial data setup into a single useEffect
+  // Single initialization effect
   useEffect(() => {
-    if (houstonCity) {
-      // Get the filtered data once
-      const filteredHurricanes = typedHurricaneData.filter(hurricane => {
-        // Distance filter for Houston
-        const isNearHouston = hurricane.path.some(point => {
+    // Only run initialization if we haven't already filtered the data
+    if (houstonCity && typedHurricaneData.length > 0 && cityHurricanes.length === typedHurricaneData.length) {
+      // Get Houston's hurricanes
+      const houstonHurricanes = typedHurricaneData.filter(hurricane => {
+        return hurricane.path.some(point => {
           const distance = getDistance(
             [point.lat, point.lon],
             houstonCity.coordinates
           )
           return distance <= 200
         })
-
-        // Apply all other default filters
-        const maxWind = Math.max(...hurricane.path.map(p => p.wind))
-        const category = getHurricaneCategory(maxWind)
-        
-        return isNearHouston && (
-          hurricane.year >= yearRange[0] && 
-          hurricane.year <= yearRange[1] &&
-          hurricane.path.some(point => point.wind >= intensityRange[0] && point.wind <= intensityRange[1]) &&
-          category >= categoryRange[0] && 
-          category <= categoryRange[1] &&
-          hurricane.min_pressure >= pressureRange[0] && 
-          hurricane.min_pressure <= pressureRange[1] &&
-          hurricane.ace >= aceRange[0] && 
-          hurricane.ace <= aceRange[1]
-        )
       })
 
-      // Set all related state at once
-      setSelectedCity({
-        name: houstonCity.name,
-        coordinates: houstonCity.coordinates
-      })
-      setCityHurricanes(filteredHurricanes)
+      // First set Houston as selected city
+      handleCitySelect(
+        houstonCity.name,
+        houstonCity.coordinates,
+        houstonHurricanes
+      )
     }
-  }, []) // Run once on mount
-
-  // Remove or comment out this useEffect as it's now redundant
-  /*
-  useEffect(() => {
-    const initialFiltered = typedHurricaneData.filter(hurricane => {
-      const maxWind = Math.max(...hurricane.path.map(p => p.wind));
-      const category = getHurricaneCategory(maxWind);
-      return category >= 1 && 
-             category <= 5 && 
-             hurricane.year >= 1999 && 
-             hurricane.year <= 2025;
-    });
-    setCityHurricanes(initialFiltered);
-  }, []);
-  */
+  }, [typedHurricaneData, cityHurricanes.length]) // Add cityHurricanes.length as dependency
 
   // Add this helper function if not already present
   function getDistance(
