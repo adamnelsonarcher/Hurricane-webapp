@@ -493,9 +493,7 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
 
       newMap.on('style.load', () => {
         map.current = newMap
-        newMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
         
-        // Only update data once the style is fully loaded
         if (hurricaneData.length > 0) {
           updateMapData(newMap)
         }
