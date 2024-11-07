@@ -166,11 +166,44 @@ const HurricaneSearch = ({ hurricanes, onSelect }: {
   )
 }
 
+const DirectionToggle = ({ visible, onChange }: { 
+  visible: boolean, 
+  onChange: (visible: boolean) => void 
+}) => (
+  <div style={{
+    position: 'absolute',
+    top: '24px',
+    left: '24px',
+    backgroundColor: 'white',
+    padding: '8px 12px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '14px',
+    cursor: 'pointer',
+    userSelect: 'none'
+  }}
+  onClick={() => onChange(!visible)}
+  >
+    <input
+      type="checkbox"
+      checked={visible}
+      onChange={() => {}}  // Handle change through parent div
+      style={{ cursor: 'pointer' }}
+    />
+    <span style={{ color: '#4b5563' }}>Show storm directional movement</span>
+  </div>
+)
+
 export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const popup = useRef<mapboxgl.Popup | null>(null)
   const cityMarkers = useRef<mapboxgl.Marker[]>([])
+  const [showArrows, setShowArrows] = useState(true)
 
   const updateMapData = (mapInstance: mapboxgl.Map) => {
     if (!mapInstance.isStyleLoaded()) {
@@ -429,6 +462,15 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
         }
       })
     }
+
+    // Update the path-arrows layer visibility based on state
+    if (mapInstance.getLayer('path-arrows')) {
+      mapInstance.setLayoutProperty(
+        'path-arrows',
+        'visibility',
+        showArrows ? 'visible' : 'none'
+      )
+    }
   }
 
   useEffect(() => {
@@ -552,6 +594,18 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
     };
   }, []);
 
+  useEffect(() => {
+    if (map.current) {
+      if (map.current.getLayer('path-arrows')) {
+        map.current.setLayoutProperty(
+          'path-arrows',
+          'visibility',
+          showArrows ? 'visible' : 'none'
+        )
+      }
+    }
+  }, [showArrows])
+
   const handleHurricaneSelect = (hurricane: Hurricane | null) => {
     const event = new CustomEvent('hurricaneSelect', { 
       detail: hurricane 
@@ -562,6 +616,7 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <div ref={mapContainer} style={{ height: '100%', width: '100%' }} />
+      <DirectionToggle visible={showArrows} onChange={setShowArrows} />
       <Legend />
       <HurricaneSearch 
         hurricanes={hurricaneData} 
