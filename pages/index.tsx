@@ -180,29 +180,31 @@ export default function HomeTemplate() {
         <button
           onClick={() => setIsOpen(true)}
           style={{
-            backgroundColor: 'transparent',
+            backgroundColor: 'rgba(255,255,255,0.1)',
             width: '42px',
             height: '42px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            border: '2px solid rgba(255,255,255,0.4)',
-            borderRadius: '50%',
+            border: '2px solid rgba(255,255,255,0.2)',
+            borderRadius: '12px',
             color: 'white',
-            fontSize: '20px',
+            fontSize: '24px',
+            fontWeight: '500',
             transition: 'all 0.2s ease',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.8)'
-            e.currentTarget.style.transform = 'scale(1.05)'
+            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'
+            e.currentTarget.style.transform = 'translateY(-1px)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'
-            e.currentTarget.style.transform = 'scale(1)'
+            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'
+            e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
-          ℹ️
+          i
         </button>
 
         {isOpen && (
