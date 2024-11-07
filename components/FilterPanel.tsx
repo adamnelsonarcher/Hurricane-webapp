@@ -125,7 +125,7 @@ export default function FilterPanel({
         </div>
       </div>
 
-      <div className="my-4"> 	.</div>
+      <div className="my-4"> </div>
 
       <div className="mt-8">
         <label className="block text-sm font-medium text-gray-700 mb-2">

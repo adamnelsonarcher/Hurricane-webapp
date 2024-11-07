@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Hurricane } from '../types/hurricane'
 
 interface CitySelectorProps {
@@ -23,6 +23,8 @@ export default function CitySelector({
   const [selectedCity, setSelectedCity] = useState('')
   const [searchResults, setSearchResults] = useState<GeocodingResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (externalSelectedCity === null) {
@@ -116,44 +118,14 @@ export default function CitySelector({
 
   return (
     <div className="filter-section relative">
-      <div className="relative mb-4">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for a city..."
-          className="search-input"
-        />
-        
-        {isLoading && (
-          <div className="search-loading">
-            <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
-          </div>
-        )}
-
-        {searchTerm && !isLoading && searchResults.length > 0 && !selectedCity && (
-          <div className="search-results max-w-md">
-            {searchResults.map((city) => (
-              <div
-                key={city.place_name}
-                onClick={() => handleCitySelect(city)}
-                className="search-result-item"
-              >
-                {city.place_name}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4">
-        <div className="text-sm text-gray-600 mb-2">
-          Or select one of these 25 gulf cities:
+      <div className="mb-4">
+        <div className="text-sm text-gray-600 mb-1.5">
+          Select one of these 25 gulf cities:
         </div>
         <select
           value={externalSelectedCity || ''}
           onChange={handleCommonCitySelect}
-          className="select w-full"
+          className="select w-full h-9"
         >
           <option value="">Select a city</option>
           {commonCities.map((city) => (
@@ -164,9 +136,48 @@ export default function CitySelector({
         </select>
       </div>
 
+      <div className="border-t border-gray-200 my-4"> </div>
+
+      <div className="relative mb-4">
+        <div className="text-sm text-gray-600 mb-1.5">
+          Or, search for any city by name:
+        </div>
+        <div className="search-input flex items-center border rounded-lg bg-white">
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Enter city name..."
+            className="w-full px-3 h-9 outline-none rounded-lg"
+            style={{ border: 'none' }}
+          />
+        </div>
+
+        {isLoading && (
+          <div className="absolute right-3 top-[34px]">
+            <div className="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+          </div>
+        )}
+
+        {searchTerm && !isLoading && searchResults.length > 0 && !selectedCity && (
+          <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200">
+            {searchResults.map((city) => (
+              <div
+                key={city.place_name}
+                onClick={() => handleCitySelect(city)}
+                className="px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-sm"
+              >
+                {city.place_name}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <button
         onClick={() => handleCitySelect(null)}
-        className="clear-selection"
+        className="clear-selection h-8 text-sm"
       >
         Clear selection
       </button>
