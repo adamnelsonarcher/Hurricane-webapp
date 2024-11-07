@@ -241,6 +241,18 @@ export default function HomeTemplate() {
     );
   };
 
+  // Add this near your other useEffect hooks
+  useEffect(() => {
+    const handleHurricaneSelect = (event: CustomEvent<Hurricane>) => {
+      setSelectedHurricane(event.detail)
+    }
+    
+    window.addEventListener('hurricaneSelect', handleHurricaneSelect as EventListener)
+    return () => {
+      window.removeEventListener('hurricaneSelect', handleHurricaneSelect as EventListener)
+    }
+  }, [])
+
   return (
     <div style={{ 
       height: '100vh', 
