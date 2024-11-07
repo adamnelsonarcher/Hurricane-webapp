@@ -181,15 +181,29 @@ export default function HomeTemplate() {
           onClick={() => setIsOpen(true)}
           style={{
             backgroundColor: 'transparent',
-            width: '36px',
-            height: '36px',
+            width: '42px',
+            height: '42px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            border: '1px solid rgba(255,255,255,0.3)',
+            border: '2px solid rgba(255,255,255,0.4)',
             borderRadius: '50%',
-            color: 'white'
+            color: 'white',
+            fontSize: '20px',
+            transition: 'all 0.2s ease',
+            hover: {
+              borderColor: 'rgba(255,255,255,0.8)',
+              transform: 'scale(1.05)'
+            }
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.8)'
+            e.currentTarget.style.transform = 'scale(1.05)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'
+            e.currentTarget.style.transform = 'scale(1)'
           }}
         >
           ℹ️
@@ -269,13 +283,22 @@ export default function HomeTemplate() {
                       NOAA National Hurricane Center (HURDAT2)
                     </a>
                   </li>
-                  <li>API: <a 
+                  <li>Data API: <a 
                       href="https://tropycal.github.io/tropycal/index.html" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       style={{ color: '#2563eb', textDecoration: 'underline' }}
                     >
                       TroPyCal
+                    </a>
+                  </li>
+                  <li>See the code for this project on <a 
+                      href="https://github.com/adamnelsonarcher/Hurricane-webapp" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: '#2563eb', textDecoration: 'underline' }}
+                    >
+                      Github
                     </a>
                   </li>
                 </ul>
