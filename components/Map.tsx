@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Hurricane } from '../types/hurricane'
@@ -64,6 +64,107 @@ const Legend = () => (
     </div>
   </div>
 )
+
+const HurricaneSearch = ({ hurricanes, onSelect }: { 
+  hurricanes: Hurricane[], 
+  onSelect: (hurricane: Hurricane | null) => void 
+}) => {
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredHurricanes = useMemo(() => {
+    if (!searchTerm) return []
+    const lowercaseSearch = searchTerm.toLowerCase()
+    return hurricanes.filter(h => 
+      h.name.toLowerCase().includes(lowercaseSearch) ||
+      h.id.toLowerCase().includes(lowercaseSearch)
+    ).slice(0, 5)
+  }, [hurricanes, searchTerm])
+
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: '24px',
+      left: '24px',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      zIndex: 1,
+      width: '300px'
+    }}>
+      {filteredHurricanes.length > 0 && (
+        <div style={{
+          maxHeight: '200px',
+          overflowY: 'auto',
+          borderBottom: '1px solid #e5e7eb',
+          backgroundColor: 'white',
+          borderTopLeftRadius: '8px',
+          borderTopRightRadius: '8px'
+        }}>
+          {filteredHurricanes.map(hurricane => (
+            <div
+              key={hurricane.id}
+              onClick={() => {
+                onSelect(hurricane)
+                setSearchTerm('')
+              }}
+              style={{
+                padding: '8px 12px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f3f4f6'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
+            >
+              {hurricane.id} ({hurricane.name})
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '8px 12px',
+      }}>
+        <span style={{ marginRight: '8px', color: '#6b7280' }}>🔍</span>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search hurricanes..."
+          style={{
+            border: 'none',
+            outline: 'none',
+            width: '100%',
+            fontSize: '14px'
+          }}
+        />
+        {searchTerm && (
+          <button
+            onClick={() => {
+              setSearchTerm('')
+              onSelect(null)
+            }}
+            style={{
+              border: 'none',
+              background: 'none',
+              padding: '4px',
+              cursor: 'pointer',
+              color: '#6b7280'
+            }}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
@@ -322,10 +423,21 @@ export default function Map({ hurricaneData, selectedCity, cities }: MapProps) {
     };
   }, []);
 
+  const handleHurricaneSelect = (hurricane: Hurricane | null) => {
+    const event = new CustomEvent('hurricaneSelect', { 
+      detail: hurricane 
+    })
+    window.dispatchEvent(event)
+  }
+
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <div ref={mapContainer} style={{ height: '100%', width: '100%' }} />
       <Legend />
+      <HurricaneSearch 
+        hurricanes={hurricaneData} 
+        onSelect={handleHurricaneSelect}
+      />
     </div>
   )
 }
