@@ -253,7 +253,7 @@ export default function HomeTemplate() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '0 32px',
+        padding: '32px 32px',
         height: '64px',
         backgroundColor: '#2563eb',
         color: 'white'
@@ -283,7 +283,7 @@ export default function HomeTemplate() {
           boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
           overflow: 'hidden'
         }}>
-          
+
           {/* Left Panel */}
           <div style={{ 
             width: isResultsExpanded ? '600px' : '450px',
@@ -299,14 +299,21 @@ export default function HomeTemplate() {
             }}>
               {/* Header - Always visible */}
               <div style={{
-                padding: '16px 32px',
+                padding: '0 32px',
+                height: '60px',
                 borderBottom: '1px solid #e5e7eb',
                 backgroundColor: 'white',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <h2 style={{ fontWeight: '600' }}>Filters</h2>
+                <h2 style={{ 
+                  margin: 0,
+                  fontWeight: '600',
+                  lineHeight: '60px'
+                }}>
+                  Filters
+                </h2>
                 <button
                   onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
                   style={{
@@ -317,10 +324,10 @@ export default function HomeTemplate() {
                     cursor: 'pointer'
                   }}
                 >
-                  {isFiltersCollapsed ? 'expand' : 'collpase'}
+                  {isFiltersCollapsed ? 'expand' : 'collapse'}
                 </button>
               </div>
-              
+
               {/* Collapsible content */}
               <div style={{
                 height: isFiltersCollapsed ? '0' : '400px',
@@ -388,7 +395,8 @@ export default function HomeTemplate() {
             }}>
               {/* Results Header */}
               <div style={{
-                padding: '16px 32px',
+                padding: '32px 32px',
+                height: '60px',
                 borderBottom: '1px solid #e5e7eb',
                 backgroundColor: 'white',
                 display: 'flex',
@@ -400,7 +408,11 @@ export default function HomeTemplate() {
                   alignItems: 'center',
                   gap: '12px'
                 }}>
-                  <h2 style={{ fontWeight: '600' }}>
+                  <h2 style={{ 
+                    margin: 0,
+                    fontWeight: '600',
+                    lineHeight: '60px'
+                  }}>
                     {selectedCity ? `Hurricanes Near ${selectedCity.name}` : 'Hurricanes'}
                   </h2>
                   <span style={{ 
